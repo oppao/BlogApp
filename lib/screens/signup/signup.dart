@@ -1,7 +1,8 @@
-import 'package:blog_app/constants/style.dart';
-import 'package:blog_app/screens/bloc/signup/signup_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../constants/style.dart';
+import '../bloc/signup/signup_bloc.dart';
 
 class SignUp extends StatefulWidget {
   SignUp({Key key}) : super(key: key);

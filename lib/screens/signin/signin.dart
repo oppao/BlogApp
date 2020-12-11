@@ -1,8 +1,9 @@
-import 'package:blog_app/constants/style.dart';
-import 'package:blog_app/screens/bloc/signin/signin_bloc.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:blog_app/constants/navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../constants/style.dart';
+import '../bloc/signin/signin_bloc.dart';
 
 class SignIn extends StatefulWidget {
   SignIn({Key key}) : super(key: key);
@@ -13,7 +14,6 @@ class SignIn extends StatefulWidget {
 
 class _SignInState extends State<SignIn> {
   String email, password;
-  final _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -117,8 +117,13 @@ class _SignInState extends State<SignIn> {
                                     '${state.submitMessage}',
                                   );
                                 }
-                                Navigator.popAndPushNamed(
-                                    context, '/mainscreen');
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => NavigationBar(),
+                                  ),
+                                );
 
                                 if (state is SigninError) {
                                   return Text('${state.errorMessage}');

@@ -1,38 +1,37 @@
-import 'package:blog_app/screens/bloc/delete/delete_bloc.dart';
-import 'package:blog_app/screens/bloc/personal/personal_bloc.dart';
-import 'package:blog_app/screens/blog_screen/blog_screen.dart';
-import 'package:blog_app/screens/view_blog/view_blog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:toast/toast.dart';
 
 import '../../constants/style.dart';
+import '../bloc/delete/delete_bloc.dart';
+import '../bloc/personal/personal_bloc.dart';
+import '../blog_screen/blog_screen.dart';
 
-class MainScreen extends StatefulWidget {
-  final _auth = FirebaseAuth.instance;
+class PersonalScreen extends StatefulWidget {
   @override
-  _MainScreenState createState() => _MainScreenState();
+  _PersonalScreenState createState() => _PersonalScreenState();
 }
 
-var uid, author, body, title;
+final blogRef = FirebaseFirestore.instance.collection('blog');
 
-class _MainScreenState extends State<MainScreen> {
+class _PersonalScreenState extends State<PersonalScreen> {
   @override
   void initState() {
-    // TODO: implement initState
-    BlocProvider.of<PersonalBloc>(context).add(FetchData());
+    super.initState();
   }
+
+  var uid, author, body, title;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
         backgroundColor: Colors.deepPurpleAccent,
         title: Text(
-          'Blog Feed',
+          ' Personal Blogs',
           style: kTextButton.copyWith(color: Colors.white),
         ),
         actions: [
@@ -65,7 +64,7 @@ class _MainScreenState extends State<MainScreen> {
                 itemCount: state.blog == null ? 0 : state.blog.length,
                 itemBuilder: (BuildContext context, int index) {
                   return Padding(
-                    padding: const EdgeInsets.only(left: 30, right: 30),
+                    padding: const EdgeInsets.only(left: 20, right: 20),
                     child: InkWell(
                       onTap: () {
                         uid = (state.blog[index].id);
@@ -79,7 +78,8 @@ class _MainScreenState extends State<MainScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ViewBlog(
+                            builder: (context) => BlogScreen(
+                              uid: uid,
                               author: author,
                               body: body,
                               title: title,
@@ -92,6 +92,47 @@ class _MainScreenState extends State<MainScreen> {
                         child: Padding(
                           padding: const EdgeInsets.all(10.0),
                           child: ListTile(
+                            trailing: IconButton(
+                              icon: Icon(
+                                Icons.delete,
+                                color: Colors.redAccent,
+                              ),
+                              onPressed: () {
+                                //print(state.blog[index]);
+
+                                uid = (state.blog[index].id);
+                                print(uid);
+                                BlocProvider.of<DeleteBloc>(context)
+                                    .add(Delete(uid: uid, context: context));
+                              },
+                            ),
+
+                            // trailing: BlocBuilder<DeleteBloc, DeleteState>(
+                            //   builder: (context, state) {
+                            //     if (state is DeleteLoading) {
+                            //       return Column(
+                            //         children: [
+                            //           CircularProgressIndicator(
+                            //             strokeWidth: 1,
+                            //           ),
+                            //           uid =
+                            //               (state.deleteBlog[index]["title"]),
+                            //           Text("${state.loadingMessage}"),
+                            //         ],
+                            //       );
+                            //     } else if (state is DeleteDone) {}
+
+                            //     return IconButton(
+                            //         icon: Icon(
+                            //           Icons.delete,
+                            //           color: Colors.redAccent,
+                            //         ),
+                            //         onPressed: () {
+                            //           BlocProvider.of<DeleteBloc>(context)
+                            //               .add(Delete(uid: uid));
+                            //         });
+                            //   },
+                            // ),
                             title: Container(
                               child: Column(
                                 children: [
@@ -177,20 +218,43 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ),
       ),
+      floatingActionButton: BlocBuilder<DeleteBloc, DeleteState>(
+        builder: (context, state) {
+          if (state is DeleteLoading) {
+            return Center(
+              child: SpinKitFadingCircle(
+                color: Colors.grey,
+                size: 50.0,
+              ),
+            );
+          } else if (state is DeleteDone) {
+            return Text('${state.doneMessage}');
+          } else if (state is DeleteError) {
+            return Text('${state.errorMessage}');
+          }
+          return SizedBox.shrink();
+        },
+      ),
     );
   }
 }
 
-class Customize_Container extends StatelessWidget {
-  const Customize_Container({
-    Key key,
-  }) : super(key: key);
+// getBlog() async {
+//   final DocumentSnapshot doc = await blogRef.doc().get();
+//   print(doc.data().toString());
+//   print(doc.exists);
+// }
 
+class Customize_Container extends StatelessWidget {
+  final Widget widget;
+
+  const Customize_Container({Key key, this.widget}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 200,
       height: 300,
+      child: widget,
       decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.all(
@@ -208,36 +272,13 @@ class Customize_Container extends StatelessWidget {
   }
 }
 
-//create
-createBlog() async {
-  try {
-    final blogRef = FirebaseFirestore.instance.collection('blog');
-    await blogRef
-        .doc("sdsffsdff")
-        .set({"title": "fdggffdg", "body": "fgdsgfdgd", "author": "fdsfdff"});
-  } catch (e) {
-    print(e);
-  }
-}
-
-//update
-updateBlog() async {
-  try {
-    final blogRef = FirebaseFirestore.instance.collection('blog');
-    await blogRef
-        .doc("sdsffsdff")
-        .update({"title": "yow", "body": "fgdsgfdgd", "author": "fdsfdff"});
-  } catch (e) {
-    print(e);
-  }
-}
-
-//delete
-deleteBlog() async {
-  try {
-    final blogRef = FirebaseFirestore.instance.collection('blog');
-    await blogRef.doc("sdsffsdff").delete();
-  } catch (e) {
-    print(e);
-  }
+Widget loadingWidget(BuildContext context) {
+  return Scaffold(
+    body: Center(
+      child: SpinKitFadingCircle(
+        color: Colors.grey,
+        size: 50.0,
+      ),
+    ),
+  );
 }

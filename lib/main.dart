@@ -1,12 +1,23 @@
-import 'package:blog_app/screens/bloc/signin/signin_bloc.dart';
-import 'package:blog_app/screens/bloc/signup/signup_bloc.dart';
-import 'package:blog_app/screens/main_screen/main_screen.dart';
-import 'package:blog_app/screens/signin/signin.dart';
-import 'package:blog_app/screens/signup/signup.dart';
+import 'package:blog_app/screens/view_blog/view_blog.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+
+import 'constants/navigation_bar.dart';
+import 'screens/bloc/create/create_bloc.dart';
+import 'screens/bloc/delete/delete_bloc.dart';
+import 'screens/bloc/main_screen/main_screen_bloc.dart';
+import 'screens/bloc/personal/personal_bloc.dart';
+import 'screens/bloc/signin/signin_bloc.dart';
+import 'screens/bloc/signup/signup_bloc.dart';
+import 'screens/bloc/update/update_bloc.dart';
+import 'screens/blog_screen/blog_screen.dart';
+import 'screens/create_screen/create_screen.dart';
+import 'screens/main_screen/main_screen.dart';
+import 'screens/personal_screen/personal_screen.dart';
+import 'screens/signin/signin.dart';
+import 'screens/signup/signup.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +36,21 @@ class MyApp extends StatelessWidget {
         BlocProvider<SigninBloc>(
           create: (BuildContext context) => SigninBloc(),
         ),
+        BlocProvider<MainScreenBloc>(
+          create: (BuildContext context) => MainScreenBloc(),
+        ),
+        BlocProvider<CreateBloc>(
+          create: (BuildContext context) => CreateBloc(),
+        ),
+        BlocProvider<PersonalBloc>(
+          create: (BuildContext context) => PersonalBloc(),
+        ),
+        BlocProvider<DeleteBloc>(
+          create: (BuildContext context) => DeleteBloc(),
+        ),
+        BlocProvider<UpdateBloc>(
+          create: (BuildContext context) => UpdateBloc(),
+        ),
       ],
       child: MaterialApp(
         initialRoute: '/',
@@ -32,6 +58,10 @@ class MyApp extends StatelessWidget {
           '/signup': (context) => SignUp(),
           '/signin': (context) => SignIn(),
           '/mainscreen': (context) => MainScreen(),
+          '/accountscreen': (context) => CreateScreen(),
+          '/personalscreen': (context) => PersonalScreen(),
+          '/blogscreen': (context) => BlogScreen(),
+          '/viewblog': (context) => ViewBlog(),
         },
         builder: (context, widget) => ResponsiveWrapper.builder(
           BouncingScrollWrapper.builder(context, widget),
@@ -52,7 +82,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: MainScreen(),
+        home: NavigationBar(),
       ),
     );
   }
